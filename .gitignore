@@ -1,0 +1,32 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# 環境變數檔案
+.env
+
+# Build 資料夾
+dist/
+build/
+out/
+
+# 日誌檔案
+logs/
+*.log
+*.log.*
+
+# 作業系統檔案
+.DS_Store
+Thumbs.db
+
+# IDE 相關
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# npm 包
+package-lock.json
+yarn.lock
