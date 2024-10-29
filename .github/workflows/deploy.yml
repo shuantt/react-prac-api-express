@@ -31,4 +31,4 @@ jobs:
         USERNAME: ${{ secrets.VPS_USERNAME }}
         SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
       run: |
-        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no $USERNAME@$HOST "cd /var/www/your-repo && git pull origin main && npm install && pm2 restart your-app-name"
+        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no $USERNAME@$HOST "cd /var/www/react-prac-api-express && git pull origin main && npm install && pm2 restart your-app-name"
