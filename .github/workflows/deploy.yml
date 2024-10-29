@@ -10,25 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 檢出程式碼
-    - name: Check out code
-      uses: actions/checkout@v2
+      # 檢出程式碼
+      - name: Check out code
+        uses: actions/checkout@v2
 
-    # 設定 Node.js 版本
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16'  # 使用你的 Node.js 版本
+      # 設定 Node.js 版本
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'  # 使用你的 Node.js 版本
 
-    # 安裝依賴
-    - name: Install dependencies
-      run: npm install
+      # 安裝依賴
+      - name: Install dependencies
+        run: npm install
 
-    # 壓縮並上傳檔案至 VPS
-    - name: Deploy to VPS
-      env:
-        HOST: ${{ secrets.VPS_HOST }}
-        USERNAME: ${{ secrets.VPS_USERNAME }}
-        SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-      run: |
-        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no $USERNAME@$HOST "cd /var/www/react-prac-api-express && git pull origin main && npm install && pm2 restart your-app-name"
+      # 設定 SSH 金鑰
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      # 部署到 VPS
+      - name: Deploy to VPS
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "
+              cd /var/www/react-prac-api-express && 
+              git pull origin main && 
+              npm install && 
+              pm2 restart react-prac-api
+          "
