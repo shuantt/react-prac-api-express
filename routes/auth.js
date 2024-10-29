@@ -11,4 +11,6 @@ router.post('/login', authController.login);
 // 查詢會員資料路由
 router.get('/profile', authController.getMember);
 
+router.get('/test', authController.getTestMsg);
+
 module.exports = router;

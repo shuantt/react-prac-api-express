@@ -70,6 +70,10 @@ const authController = {
             })
         });
     },
+
+    getTestMsg: async (req, res) => {
+        res.json({ message: 'Test' });
+    }
 }
 
 module.exports = authController;
