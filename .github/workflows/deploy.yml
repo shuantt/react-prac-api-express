@@ -24,18 +24,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # 設定 SSH 金鑰
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
-
       # 部署到 VPS
-      - name: Deploy to VPS
-        run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "
-              cd /var/www/react-prac-api-express && 
-              git pull origin main && 
-              npm install && 
-              pm2 restart react-prac-api
-          "
+      - name: Deploy to Linode
+        uses: appleboy/ssh-action@main
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /var/www/react-prac-api-express
+            git pull
+            npm install
+            npm run build
+            pm2 restart all
