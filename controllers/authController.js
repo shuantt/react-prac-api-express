@@ -1,9 +1,11 @@
 // controllers/authController.js
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const {handleSuccess, handleError} = require('../utils/handleResponse');
 const memberModel = require('../models/member');
 
 const authController = {
+
     // 註冊
     register: async (req, res) => {
         console.log(req.body);
@@ -11,18 +13,18 @@ const authController = {
 
         memberModel.findMemberByUsername(username, async (err, results) => {
             if (err) {
-                return res.status(500).json({ message: 'Database error' });
+                return handleError(res, 500, '例外錯誤#1'); 
             }
             if (results.length > 0) {
-                return res.status(400).json({ message: 'Username already exists' });
+                return handleError(res, 400, '帳號已存在'); 
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
             memberModel.createMember(username, hashedPassword, firstName, lastName, (err) => {
                 if (err) {
-                    return res.status(500).json({ message: 'Database error' });
+                    return handleError(res, 500, '例外錯誤#1'); 
                 }
-                res.status(201).json({ message: 'Member registered successfully' });
+                return handleSuccess(res, 201, '註冊成功'); 
             });
         });
     },
@@ -32,15 +34,15 @@ const authController = {
         const { username, password } = req.body;
         memberModel.findMemberByUsername(username, async (err, results) => {
             if (err) {
-                return res.status(500).json({ message: 'Database error' });
+                return handleError(res, 500, '例外錯誤#1'); 
             }
             const user = results[0];
             console.log(user);
             if (!user || !(await bcrypt.compare(password, user.password))) {
-                return res.status(401).json({ message: 'Invalid credentials' });
+                return handleError(res, 401, '帳號或密碼錯誤'); 
             }
             const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
-            res.json({ token });
+            handleSuccess(res, 201, '註冊成功', token);
         });
     },
 
@@ -48,31 +50,30 @@ const authController = {
     getMember: async  (req, res) => {
         const authHeader = req.headers.authorization;
         if (!authHeader) {
-            return res.sendStatus(401);
+           return handleError(res, 500, '例外錯誤#1'); 
         }
 
         const token = authHeader.split(' ')[1];
         jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
             if (err) {
-                return res.sendStatus(403);
+                return handleError(res, 403, '憑證驗證失敗'); 
             }
 
             memberModel.getMember(user.username, (err, results) => {
                 if (err) {
-                    return res.status(500).json({ message: 'Database error' });
+                    return handleError(res, 500, '例外錯誤#1'); 
                 }
                 
                 if(results.length === 0) {
-                    return res.status(404).json({ message: 'Member not found' });
+                    return handleError(res, 404, '找不到會員資料'); 
                 }
-                
-                res.json(results[0]);
+                handleSuccess(res, 200, '查詢會員資料成功', results[0]);
             })
         });
     },
 
     getTestMsg: async (req, res) => {
-        res.json({ message: 'Test' });
+        handleSuccess(res, 200, '測試接通', {msg: 'Hello World!'});
     }
 }
 
