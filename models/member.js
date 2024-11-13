@@ -9,8 +9,8 @@ const findMemberByUsername = (username, callback) => {
 };
 
 // 新增會員
-const createMember = (username, hashedPassword, firstName, lastName, callback) => {
-    db.query('INSERT INTO members (username, password, first_name, last_name) VALUES (?, ?,?,?)', [username, hashedPassword, firstName, lastName], (err, results) => {
+const createMember = (username, hashedPassword, firstName, lastName, role, callback) => {
+    db.query('INSERT INTO members (username, password, first_name, last_name, role) VALUES (?, ?, ?, ?, ?)', [username, hashedPassword, firstName, lastName, role], (err, results) => {
         if (err) {
             console.error('插入會員失敗:', err);
             return callback(err);
@@ -21,7 +21,7 @@ const createMember = (username, hashedPassword, firstName, lastName, callback) =
 };
 
 const getMember = (username, callback) => {
-    db.query('SELECT username, first_name, last_name FROM members WHERE username = ?', [username], (err, results) => {
+    db.query('SELECT username, first_name, last_name, role FROM members WHERE username = ?', [username], (err, results) => {
         if (err) return callback(err);
         callback(null, results);
     });
