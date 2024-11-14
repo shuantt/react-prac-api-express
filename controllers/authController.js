@@ -18,7 +18,7 @@ const authController = {
         if (role !== 1 && role !== 2) {
             return handleError(res, 400, '角色錯誤，請填入角色代號 (1:一般會員 2:高級會員)');
         }
-        
+
         memberModel.findMemberByUsername(username, async (err, results) => {
             if (err) {
                 return handleError(res, 500, '例外錯誤#1');
@@ -50,7 +50,8 @@ const authController = {
                 return handleError(res, 401, '帳號或密碼錯誤');
             }
             const token = jwt.sign({ username: user.username, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-            handleSuccess(res, 201, '註冊成功', token);
+            console.log(user)
+            handleSuccess(res, 200, '登入成功', { token: token, firstName: user.first_name, lastName: user.last_name, userRole: user.role });
         });
     },
 
@@ -75,7 +76,7 @@ const authController = {
                 if (results.length === 0) {
                     return handleError(res, 404, '找不到會員資料');
                 }
-                
+
                 console.log(results[0]);
 
                 handleSuccess(res, 200, '查詢會員資料成功', results[0]);
